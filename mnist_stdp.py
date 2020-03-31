@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 26 19:45:11 2020
-
-@author: xana
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
 from os import path
@@ -125,6 +117,8 @@ if_params = {"Vthr": 5.0}
 rm_params = {"Vspike":60, "alpha":3, "y":-2.468, "beta":0.0165}
 ex_params = {"Vsyn": 0, "tau_syn": 10, "g": G_MAX}
 inh_params = {"Vsyn": -92, "tau_syn": 10, "g": G_MAX}
+PROBABILITY_CONNECTION = 0.75
+fixed_prob = {"prob": PROBABILITY_CONNECTION}
 
 # ----------------------------------------------------------------------------
 # Custom GeNN models
@@ -248,16 +242,15 @@ model.add_synapse_population(
     "synapse%u" % 1, "DENSE_INDIVIDUALG", DELAY,
     neuron_layers[1], neuron_layers[2],
     stdp, {G_MAX, G_MIN}, {"g": init_var("Uniform", INIT_WEIGHTS)}, {}, {},
-    cb_synapse, ex_params,  {"V": 50.0})
+    cb_synapse, ex_params,  {"V": 50.0}, init_connectivity("FixedProbabilityNoAutapse", fixed_prob))
 model.add_synapse_population(
     "synapse%u" % 2, "DENSE_INDIVIDUALG", DELAY,
     neuron_layers[2], neuron_layers[2],
     "StaticPulse", {}, {"g": init_var(lateral_inhibition, {"g": 0.025})}, {}, {},
-    "DeltaCurr", {}, {})
+    "DeltaCurr", {}, init_connectivity("FixedProbabilityNoAutapse", fixed_prob))
 
 
 
 # Build and load our model
 model.build()
 model.load()
-
